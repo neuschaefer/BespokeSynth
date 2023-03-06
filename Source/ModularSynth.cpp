@@ -1063,8 +1063,10 @@ void ModularSynth::KeyPressed(int key, bool isRepeat)
 
    if (key == OF_KEY_RETURN)
    {
-      if (mMoveModule)
+      if (mMoveModule) {
+         printf("%s: mMoveModule = nullptr\n", __func__);
          mMoveModule = nullptr; //drop module
+      }
 
       if (IUIControl::WasLastHoverSetManually())
       {
@@ -1180,6 +1182,7 @@ void ModularSynth::MouseMoved(int intX, int intY)
 
    if (mMoveModule)
    {
+      printf("%s/%d: mMoveModule good\n", __func__, gettid());
       float x = GetMouseX(&mModuleContainer);
       float y = GetMouseY(&mModuleContainer);
 
@@ -1233,8 +1236,12 @@ void ModularSynth::MouseMoved(int intX, int intY)
                }
             }
 
-            if (!mHasAutopatchedToTargetDuringDrag)
+            if (!mMoveModule)
+               printf("%s/%d: found mMoveModule == nullptr!\n", __func__, gettid());
+
+            if (!mHasAutopatchedToTargetDuringDrag /*&& mMoveModule*/)
             {
+               // XXX: mMoveModule = 0
                for (auto* patchCableSource : mMoveModule->GetPatchCableSources())
                {
                   if (patchCableSource && patchCableSource->GetTarget() == nullptr && module->HasTitleBar())
@@ -1468,6 +1475,7 @@ void ModularSynth::MousePressed(int intX, int intY, int button, const juce::Mous
 
    if (mMoveModule)
    {
+         printf("%s: mMoveModule = nullptr\n", __func__);
       mMoveModule = nullptr;
       return;
    }
@@ -1887,6 +1895,8 @@ void ModularSynth::MouseReleased(int intX, int intY, int button, const juce::Mou
    float x = GetMouseX(&mModuleContainer);
    float y = GetMouseY(&mModuleContainer);
 
+   LockRender(true);
+
    if (GetTopModalFocusItem())
    {
       GetTopModalFocusItem()->MouseReleased();
@@ -1903,14 +1913,18 @@ void ModularSynth::MouseReleased(int intX, int intY, int button, const juce::Mou
          if (mMoveModule->WasMinimizeAreaClicked())
          {
             mMoveModule->ToggleMinimized();
+             printf("%s-1/%d: mMoveModule = nullptr\n", __func__, gettid());
             mMoveModule = nullptr;
          }
 
-         if (!mMoveModuleCanStickToCursor)
+         if (!mMoveModuleCanStickToCursor) {
+            printf("%s-2/%d: mMoveModule = nullptr\n", __func__, gettid());
             mMoveModule = nullptr;
+         }
       }
       else
       {
+         printf("%s-3/%d: mMoveModule = nullptr\n", __func__, gettid());
          mMoveModule = nullptr;
       }
    }
@@ -1940,6 +1954,8 @@ void ModularSynth::MouseReleased(int intX, int intY, int button, const juce::Mou
    mClickStartY = INT_MAX;
    mGroupSelectContext = nullptr;
    Prefab::sJustReleasedModule = nullptr;
+
+   LockRender(false);
 }
 
 void ModularSynth::AudioOut(float** output, int bufferSize, int nChannels)
@@ -2287,6 +2303,7 @@ void ModularSynth::ResetLayout()
    mDeletedModules.clear();
    mSources.clear();
    mLissajousDrawers.clear();
+   printf("%s: mMoveModule = nullptr\n", __func__);
    mMoveModule = nullptr;
    TheTransport->ClearListenersAndPollers();
    TheScale->ClearListeners();
