@@ -64,7 +64,7 @@ public:
 #endif
 
 #ifndef BESPOKE_WINDOWS //windows crash handler is set up in ModularSynth() constructor
-      SystemStats::setApplicationCrashHandler(ModularSynth::CrashHandler);
+      //SystemStats::setApplicationCrashHandler(ModularSynth::CrashHandler);
 #endif
 
       UserPrefs.Init();
