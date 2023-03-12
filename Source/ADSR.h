@@ -82,8 +82,8 @@ public:
    void Start(double time, float target, float a, float d, float s, float r, float timeScale = 1);
    void Start(double time, float target, const ADSR& adsr, float timeScale = 1);
    void Stop(double time, bool warn = true);
-   float Value(double time) const;
-   float Value(double time, const EventInfo* event) const;
+   float Value(double time);
+   float Value(double time, const EventInfo* event);
    void Set(float a, float d, float s, float r, float h = -1);
    void Set(const ADSR& other);
    void Clear()
@@ -97,8 +97,8 @@ public:
    void SetSustainStage(int stage) { mSustainStage = stage; }
    bool IsDone(double time) const;
    bool IsStandardADSR() const { return mNumStages == 3 && mSustainStage == 1; }
-   float GetStartTime(double time) const { return GetEventConst(time)->mStartTime; }
-   float GetStopTime(double time) const { return GetEventConst(time)->mStopTime; }
+   float GetStartTime(double time) { auto g = LockWithGuard(); return GetEventConst(time)->mStartTime; }
+   float GetStopTime(double time) { auto g = LockWithGuard(); return GetEventConst(time)->mStopTime; }
 
    int GetNumStages() const { return mNumStages; }
    void SetNumStages(int num) { mNumStages = CLAMP(num, 1, MAX_ADSR_STAGES); }
@@ -120,6 +120,11 @@ public:
    void SaveState(FileStreamOut& out);
    void LoadState(FileStreamIn& in);
 
+   std::lock_guard<std::recursive_mutex> LockWithGuard()
+   {
+      return std::lock_guard<std::recursive_mutex>(mLock);
+   }
+
 private:
    EventInfo* GetEvent(double time);
    const EventInfo* GetEventConst(double time) const;
@@ -134,4 +139,5 @@ private:
    bool mHasSustainStage{ false };
    bool mFreeReleaseLevel{ false };
    float mTimeScale{ 1 };
+   std::recursive_mutex mLock;
 };

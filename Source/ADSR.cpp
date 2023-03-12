@@ -60,18 +60,21 @@ void ::ADSR::Set(const ADSR& other)
 
 void ::ADSR::Start(double time, float target, float a, float d, float s, float r, float timeScale /*=1*/)
 {
+   auto g = LockWithGuard();
    Set(a, d, s, r);
    Start(time, target, timeScale);
 }
 
 void ::ADSR::Start(double time, float target, const ADSR& adsr, float timeScale)
 {
+   auto g = LockWithGuard();
    Set(adsr);
    Start(time, target, timeScale);
 }
 
 void ::ADSR::Start(double time, float target, float timeScale /*=1*/)
 {
+   auto g = LockWithGuard();
    mEvents[mNextEventPointer].Reset();
    mEvents[mNextEventPointer].mStartBlendFromValue = Value(time);
    mEvents[mNextEventPointer].mStartTime = time;
@@ -95,6 +98,8 @@ void ::ADSR::Start(double time, float target, float timeScale /*=1*/)
 
 void ::ADSR::Stop(double time, bool warn /*= true*/)
 {
+   auto g = LockWithGuard();
+
    EventInfo* e = GetEvent(time);
 
    e->mStopBlendFromValue = Value(time);
@@ -115,6 +120,7 @@ void ::ADSR::Stop(double time, bool warn /*= true*/)
 
 ::ADSR::EventInfo* ::ADSR::GetEvent(double time)
 {
+   auto g = LockWithGuard();
    int ret = 0;
    double latestTime = -1;
    for (int i = 0; i < (int)mEvents.size(); ++i)
@@ -143,13 +149,14 @@ const ::ADSR::EventInfo* ::ADSR::GetEventConst(double time) const
    return &(mEvents[ret]);
 }
 
-float ::ADSR::Value(double time) const
+float ::ADSR::Value(double time)
 {
+   auto g = LockWithGuard();
    const EventInfo* e = GetEventConst(time);
    return Value(time, e);
 }
 
-float ::ADSR::Value(double time, const EventInfo* e) const
+float ::ADSR::Value(double time, const EventInfo* e)
 {
    //if (mStartTime < 0)
    //   return 0;

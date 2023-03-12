@@ -42,7 +42,7 @@ public:
    void SetADSR(float a, float d, float s, float r) { mAdsr.Set(a, d, s, r); }
    void Start(double time, float target) { mAdsr.Start(time, target); }
    void Start(double time, float target, float a, float d, float s, float r) { mAdsr.Start(time, target, a, d, s, r); }
-   void Start(double time, float target, ::ADSR adsr)
+   void Start(double time, float target, const ::ADSR &adsr)
    {
       mAdsr.Set(adsr);
       mAdsr.Start(time, target);
