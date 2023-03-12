@@ -109,9 +109,20 @@ ModularSynth::~ModularSynth()
    ScriptModule::UninitializePython();
 }
 
-void ModularSynth::CrashHandler(void*)
+void ModularSynth::CrashHandler(void *p)
 {
    DumpStats(true, nullptr);
+
+#if BESPOKE_LINUX || BESPOKE_MAC
+   // Terminate with the signal that got us into trouble (e.g. SIGSEGV).
+   int signum = (int)(intptr_t)p;
+   signal(signum, SIG_DFL);
+   kill(getpid(), signum);
+
+   // Pause the current thread long enough to give the signal a chance to
+   // terminate the whole process.
+   sleep(1);
+#endif
 }
 
 #if BESPOKE_WINDOWS
