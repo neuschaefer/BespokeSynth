@@ -2530,7 +2530,6 @@ void UIControlConnection::CreateUIControls(int index)
    mMessageTypeDropdown->AddLabel("bend", kMidiMessage_PitchBend);
 
    mChannelDropdown->AddLabel("any", -1);
-   mChannelDropdown->AddLabel("0", 0);
    mChannelDropdown->AddLabel("1", 1);
    mChannelDropdown->AddLabel("2", 2);
    mChannelDropdown->AddLabel("3", 3);
@@ -2546,6 +2545,7 @@ void UIControlConnection::CreateUIControls(int index)
    mChannelDropdown->AddLabel("13", 13);
    mChannelDropdown->AddLabel("14", 14);
    mChannelDropdown->AddLabel("15", 15);
+   mChannelDropdown->AddLabel("16", 16);
 
    mControlTypeDropdown->AddLabel("slider", kControlType_Slider);
    mControlTypeDropdown->AddLabel("set", kControlType_SetValue);
