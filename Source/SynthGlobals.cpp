@@ -521,6 +521,8 @@ void DrawLissajous(RollingBuffer* buffer, float x, float y, float w, float h, fl
    ofPushStyle();
    ofSetLineWidth(1.5f);
 
+   auto guard = buffer->LockWithGuard();
+
    int secondChannel = 1;
    if (buffer->NumChannels() == 1)
       secondChannel = 0;

@@ -37,6 +37,7 @@ RollingBuffer::~RollingBuffer()
 
 float RollingBuffer::GetSample(int samplesAgo, int channel)
 {
+   auto g = LockWithGuard();
    assert(samplesAgo >= 0);
    assert(samplesAgo < Size());
    return mBuffer.GetChannel(channel)[(Size() + mOffsetToNow[channel] - samplesAgo) % Size()];
@@ -44,6 +45,7 @@ float RollingBuffer::GetSample(int samplesAgo, int channel)
 
 void RollingBuffer::ReadChunk(float* dst, int size, int samplesAgo, int channel)
 {
+   auto g = LockWithGuard();
    assert(size <= Size());
 
    int offset = mOffsetToNow[channel] - samplesAgo;
@@ -64,12 +66,14 @@ void RollingBuffer::ReadChunk(float* dst, int size, int samplesAgo, int channel)
 
 void RollingBuffer::Accum(int samplesAgo, float sample, int channel)
 {
+   auto g = LockWithGuard();
    assert(samplesAgo < Size());
    mBuffer.GetChannel(channel)[(Size() + mOffsetToNow[channel] - samplesAgo) % Size()] += sample;
 }
 
 void RollingBuffer::WriteChunk(float* samples, int size, int channel)
 {
+   auto g = LockWithGuard();
    assert(size < Size());
 
    int wrapSamples = (mOffsetToNow[channel] + size) - Size();
@@ -90,6 +94,7 @@ void RollingBuffer::WriteChunk(float* samples, int size, int channel)
 
 void RollingBuffer::Write(float sample, int channel)
 {
+   auto g = LockWithGuard();
    mBuffer.GetChannel(channel)[mOffsetToNow[channel]] = sample;
    mOffsetToNow[channel] = (mOffsetToNow[channel] + 1) % Size();
    if (channel != 0 && mOffsetToNow[channel] < mOffsetToNow[0] - gBufferSize * 2) //channels out of sync, probably was only writing to channel 0 for a while
@@ -98,6 +103,7 @@ void RollingBuffer::Write(float sample, int channel)
 
 void RollingBuffer::ClearBuffer()
 {
+   auto g = LockWithGuard();
    mBuffer.Clear();
    for (int i = 0; i < ChannelBuffer::kMaxNumChannels; ++i)
       mOffsetToNow[i] = 0;
@@ -148,6 +154,7 @@ namespace
 
 void RollingBuffer::SaveState(FileStreamOut& out)
 {
+   auto g = LockWithGuard();
    out << kSaveStateRev;
 
    out << mBuffer.NumActiveChannels();
@@ -161,6 +168,7 @@ void RollingBuffer::SaveState(FileStreamOut& out)
 
 void RollingBuffer::LoadState(FileStreamIn& in)
 {
+   auto g = LockWithGuard();
    int rev;
    in >> rev;
 
