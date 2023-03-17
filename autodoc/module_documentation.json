@@ -1388,7 +1388,7 @@
          "F-2 (5)" : "",
          "G-2 (7)" : ""
       },
-      "description" : "only allow a certain pitches through",
+      "description" : "only allow certain pitches through. note-off events (velocity=0) are always allowed through.",
       "type" : "note effects"
    },
    "noteflusher" : {
