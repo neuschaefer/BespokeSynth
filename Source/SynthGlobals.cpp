@@ -57,7 +57,7 @@ double gInvSampleRateMs = -999;
 double gBufferSizeMs = -999;
 double gNyquistLimit = -999;
 bool gPrintMidiInput = false;
-double gTime = 1; //using a double here, so I'm going to lose nanosecond accuracy
+std::atomic<double> gTime = 1; //using a double here, so I'm going to lose nanosecond accuracy
 //if I run for 4 months straight
 //this means I'll lose 44100 hz sample accuracy in 7100 years of
 //continuous uptime
