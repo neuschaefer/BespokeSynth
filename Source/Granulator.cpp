@@ -163,7 +163,7 @@ void Grain::DrawGrain(int idx, float x, float y, float w, float h, int bufferSta
       return;
    ofPushStyle();
    ofFill();
-   float alpha = GetWindow(std::clamp(gTime, mStartTime, mEndTime));
+   float alpha = GetWindow(std::clamp((double)gTime, mStartTime, mEndTime));
    ofSetColor(255, 0, 0, alpha * 255);
    ofCircle(x + a * w, y + mDrawPos * h, MAX(3, h / MAX_GRAINS / 2));
    ofPopStyle();
