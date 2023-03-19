@@ -109,9 +109,13 @@ ModularSynth::~ModularSynth()
    ScriptModule::UninitializePython();
 }
 
-void ModularSynth::CrashHandler(void *p)
+void ModularSynth::CrashHandler(void* p)
 {
-   DumpStats(true, nullptr);
+   // DumpStats implicitly uses new/delete, which are not signal-safe, according to POSIX.
+   // ThreadSanitizer takes this seriously and prints a lot of log spam when it
+   // sees that DumpStats has been called from a signal handler, so let's just avoid that.
+   if (!BESPOKE_USE_TSAN)
+      DumpStats(true, nullptr);
 
 #if BESPOKE_LINUX || BESPOKE_MAC
    // Terminate with the signal that got us into trouble (e.g. SIGSEGV).
