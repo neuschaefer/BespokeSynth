@@ -28,7 +28,7 @@
 class ILockable
 {
 public:
-   ofMutexGuard LockWithGuard()
+   ofMutexGuard LockWithGuard() const
    {
       return ofMutexGuard(mMutex);
    }
