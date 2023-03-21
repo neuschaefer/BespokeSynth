@@ -54,7 +54,7 @@ bool IUIControl::TestHover(int x, int y)
    if (mNoHover)
       return false;
 
-   if (!mShowing)
+   if (!IsShowing())
       return false;
 
    float w, h;

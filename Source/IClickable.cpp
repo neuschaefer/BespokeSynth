@@ -39,7 +39,7 @@ IClickable::IClickable()
 
 void IClickable::Draw()
 {
-   if (!mShowing)
+   if (!IsShowing())
       return;
 
    Render();
@@ -47,7 +47,7 @@ void IClickable::Draw()
 
 bool IClickable::TestClick(float x, float y, bool right, bool testOnly /* = false */)
 {
-   if (!mShowing)
+   if (!IsShowing())
       return false;
 
    float w, h;
@@ -69,28 +69,31 @@ bool IClickable::TestClick(float x, float y, bool right, bool testOnly /* = fals
 
 bool IClickable::NotifyMouseMoved(float x, float y)
 {
-   if (!mShowing)
+   if (!IsShowing())
       return false;
    return MouseMoved(x - mX, y - mY);
 }
 
 bool IClickable::NotifyMouseScrolled(float x, float y, float scrollX, float scrollY, bool isSmoothScroll, bool isInvertedScroll)
 {
-   if (!mShowing)
+   if (!IsShowing())
       return false;
    return MouseScrolled(x - mX, y - mY, scrollX, scrollY, isSmoothScroll, isInvertedScroll);
 }
 
 void IClickable::GetPosition(float& x, float& y, bool local /*= false*/) const
 {
-   if (mParent && !local)
+   auto parent = GetParent();
+   if (parent && !local)
    {
-      mParent->GetPosition(x, y, false);
+      parent->GetPosition(x, y, false);
+      const ofMutexGuard g(mClickableMutex);
       x += mX;
       y += mY;
    }
    else
    {
+      const ofMutexGuard g(mClickableMutex);
       x = mX;
       y = mY;
    }
@@ -141,6 +144,7 @@ IDrawableModule* IClickable::GetModuleParent()
 
 std::string IClickable::Path(bool ignoreContext, bool useDisplayName)
 {
+   const ofMutexGuard g(mClickableMutex);
    if (mName[0] == 0) //must have a name
       return "";
 
@@ -179,11 +183,12 @@ std::string IClickable::Path(bool ignoreContext, bool useDisplayName)
 
 bool IClickable::CheckNeedsDraw()
 {
-   return mShowing;
+   return IsShowing();
 }
 
 float IClickable::GetBeaconAmount() const
 {
+   const ofMutexGuard g(mClickableMutex);
    return ofClamp(((mBeaconTime + 250) - gTime) / 250, 0, 1);
 }
 

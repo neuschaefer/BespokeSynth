@@ -302,6 +302,9 @@ void Minimap::ForcePosition()
    float width, height, scale;
    scale = 1 / TheSynth->GetUIScale();
    GetDimensions(width, height);
-   mX = (ofGetWidth() * scale) - (width + kMarginRight);
+   auto x = (ofGetWidth() * scale) - (width + kMarginRight);
+
+   ofMutexGuard g(mClickableMutex);
+   mX = x;
    mY = kMarginTop;
 }

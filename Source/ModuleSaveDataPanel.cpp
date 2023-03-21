@@ -238,7 +238,7 @@ void ModuleSaveDataPanel::UpdatePosition()
       SetPosition(moduleX + moduleW, moduleY);
    }
 
-   if (mShowing)
+   if (IsShowing())
       mAppearAmount = ofClamp(mAppearAmount + ofGetLastFrameTime() * 5, 0, 1);
    else
       mAppearAmount = ofClamp(mAppearAmount - ofGetLastFrameTime() * 5, 0, 1);
@@ -340,7 +340,7 @@ void ModuleSaveDataPanel::DropdownUpdated(DropdownList* list, int oldVal, double
 
 void ModuleSaveDataPanel::GetModuleDimensions(float& width, float& height)
 {
-   if (mShowing)
+   if (IsShowing())
    {
       width = EaseOut(0, mAlignmentX + 250, mAppearAmount);
       height = EaseIn(0, mHeight, mAppearAmount);

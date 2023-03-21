@@ -351,7 +351,7 @@ void IDrawableModule::DrawFrame(float w, float h, bool drawModule, float& titleB
 
 void IDrawableModule::Render()
 {
-   if (!mShowing)
+   if (!IsShowing())
       return;
 
    PreDrawModule();
@@ -435,7 +435,7 @@ void IDrawableModule::Render()
 
 void IDrawableModule::RenderUnclipped()
 {
-   if (!mShowing)
+   if (!IsShowing())
       return;
 
    ofPushMatrix();
@@ -653,12 +653,12 @@ bool IDrawableModule::MouseMoved(float x, float y)
 {
    float w, h;
    GetModuleDimensions(w, h);
-   if (mShowing && !Minimized() && IsResizable() && x > w - sResizeCornerSize && y > h - sResizeCornerSize && x <= w && y <= h)
+   if (IsShowing() && !Minimized() && IsResizable() && x > w - sResizeCornerSize && y > h - sResizeCornerSize && x <= w && y <= h)
       mHoveringOverResizeHandle = true;
    else
       mHoveringOverResizeHandle = false;
 
-   if (!mShowing)
+   if (!IsShowing())
       return false;
    for (auto source : mPatchCableSources)
       source->NotifyMouseMoved(x, y);

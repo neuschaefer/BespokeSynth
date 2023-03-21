@@ -41,6 +41,7 @@ public:
    virtual void Render() {}
    void SetPosition(float x, float y)
    {
+      const ofMutexGuard g(mClickableMutex);
       mX = x;
       mY = y;
    }
@@ -48,12 +49,21 @@ public:
    ofVec2f GetPosition(bool local = false) const;
    virtual void Move(float moveX, float moveY)
    {
+      const ofMutexGuard g(mClickableMutex);
       mX += moveX;
       mY += moveY;
    }
    virtual bool TestClick(float x, float y, bool right, bool testOnly = false);
-   IClickable* GetParent() const { return mParent; }
-   void SetParent(IClickable* parent) { mParent = parent; }
+   IClickable* GetParent() const
+   {
+      const ofMutexGuard g(mClickableMutex);
+      return mParent;
+   }
+   void SetParent(IClickable* parent)
+   {
+      const ofMutexGuard g(mClickableMutex);
+      mParent = parent;
+   }
    bool NotifyMouseMoved(float x, float y);
    bool NotifyMouseScrolled(float x, float y, float scrollX, float scrollY, bool isSmoothScroll, bool isInvertedScroll);
    virtual void MouseReleased() {}
@@ -66,27 +76,50 @@ public:
    ofRectangle GetRect(bool local = false);
    void SetName(const char* name)
    {
+      const ofMutexGuard g(mClickableMutex);
       if (mName != name)
          StringCopy(mName, name, MAX_TEXTENTRY_LENGTH);
    }
-   const char* Name() const { return mName; }
-   char* NameMutable() { return mName; }
+   const char* Name() const
+   {
+      const ofMutexGuard g(mClickableMutex);
+      return mName;
+   }
+   char* NameMutable()
+   {
+      const ofMutexGuard g(mClickableMutex);
+      return mName;
+   }
    std::string Path(bool ignoreContext = false, bool useDisplayName = false);
    virtual bool CheckNeedsDraw();
-   virtual void SetShowing(bool showing) { mShowing = showing; }
-   bool IsShowing() const { return mShowing; }
-   virtual void StartBeacon() { mBeaconTime = gTime; }
+   virtual void SetShowing(bool showing)
+   {
+      const ofMutexGuard g(mClickableMutex);
+      mShowing = showing;
+   }
+   bool IsShowing() const
+   {
+      const ofMutexGuard g(mClickableMutex);
+      return mShowing;
+   }
+   virtual void StartBeacon()
+   {
+      const ofMutexGuard g(mClickableMutex);
+      mBeaconTime = gTime;
+   }
    float GetBeaconAmount() const;
    void DrawBeacon(int x, int y);
    IClickable* GetRootParent();
    IDrawableModule* GetModuleParent();
    void SetOverrideDisplayName(std::string name)
    {
+      const ofMutexGuard g(mClickableMutex);
       mHasOverrideDisplayName = true;
       mOverrideDisplayName = name;
    }
    std::string GetDisplayName()
    {
+      const ofMutexGuard g(mClickableMutex);
       return mHasOverrideDisplayName ? mOverrideDisplayName : mName;
    }
 
@@ -102,6 +135,8 @@ protected:
    virtual void OnClicked(float x, float y, bool right) {}
    virtual bool MouseMoved(float x, float y) { return false; }
    virtual bool MouseScrolled(float x, float y, float scrollX, float scrollY, bool isSmoothScroll, bool isInvertedScroll) { return false; }
+
+   mutable ofMutex mClickableMutex;
 
    float mX{ 0 };
    float mY{ 0 };

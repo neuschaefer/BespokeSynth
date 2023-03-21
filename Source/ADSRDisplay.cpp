@@ -414,7 +414,7 @@ void ADSRDisplay::OnClicked(float x, float y, bool right)
       return;
    }
 
-   if (!mShowing)
+   if (!IsShowing())
       return;
 
    if (right)
