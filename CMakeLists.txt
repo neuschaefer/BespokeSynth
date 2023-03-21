@@ -16,11 +16,12 @@ option(BESPOKE_SYSTEM_PYBIND11 "Use a system installation of pybind11" OFF)
 option(BESPOKE_SYSTEM_JSONCPP "Use system-wide installation of jsoncpp" OFF)
 option(BESPOKE_SYSTEM_TUNING_LIBRARY "Use system installation of tuning-library" OFF)
 option(BESPOKE_USE_ASAN "Build with ASAN" OFF)
+option(BESPOKE_USE_TSAN "Build with TSAN" OFF)
 
 # Global CMake options
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # clangd/LSP support
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT BespokeSynth)
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.11 CACHE STRING "Minimum macOS version")
@@ -57,6 +58,13 @@ if (BESPOKE_USE_ASAN)
     message( STATUS "BUILDING with ASAN" )
     add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
     add_link_options(-fsanitize=address)
+endif()
+
+if (BESPOKE_USE_TSAN)
+    message( STATUS "BUILDING with TSAN" )
+    add_compile_options(-fsanitize=thread -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=thread)
+    add_compile_definitions(BESPOKE_USE_TSAN=1)
 endif()
 
 if(BESPOKE_NIGHTLY)

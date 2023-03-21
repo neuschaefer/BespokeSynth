@@ -45,15 +45,21 @@ public:
    ChannelBuffer* GetRawBuffer() { return &mBuffer; }
    int GetRawBufferOffset(int channel) { return mOffsetToNow[channel]; }
    void Accum(int samplesAgo, float sample, int channel);
-   void SetNumChannels(int channels) { mBuffer.SetNumActiveChannels(channels); }
+   void SetNumChannels(int channels) { auto g = LockWithGuard(); mBuffer.SetNumActiveChannels(channels); }
    int NumChannels() const { return mBuffer.NumActiveChannels(); }
 
    void SaveState(FileStreamOut& out);
    void LoadState(FileStreamIn& in);
 
+   std::lock_guard<std::recursive_mutex> LockWithGuard()
+   {
+      return std::lock_guard<std::recursive_mutex>(mLock);
+   }
+
 private:
    int mOffsetToNow[ChannelBuffer::kMaxNumChannels]{};
    ChannelBuffer mBuffer;
+   std::recursive_mutex mLock;
 };
 
 #endif /* defined(__modularSynth__RollingBuffer__) */

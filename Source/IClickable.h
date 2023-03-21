@@ -26,13 +26,14 @@
 #ifndef __modularSynth__IClickable__
 #define __modularSynth__IClickable__
 
+#include "ILockable.h"
 #include "SynthGlobals.h"
 
 //TODO(Ryan) factor Transformable stuff out of here
 
 class IDrawableModule;
 
-class IClickable
+class IClickable : ILockable
 {
 public:
    IClickable();
@@ -41,6 +42,7 @@ public:
    virtual void Render() {}
    void SetPosition(float x, float y)
    {
+      const auto g = LockWithGuard();
       mX = x;
       mY = y;
    }
@@ -48,12 +50,21 @@ public:
    ofVec2f GetPosition(bool local = false) const;
    virtual void Move(float moveX, float moveY)
    {
+      const auto g = LockWithGuard();
       mX += moveX;
       mY += moveY;
    }
    virtual bool TestClick(float x, float y, bool right, bool testOnly = false);
-   IClickable* GetParent() const { return mParent; }
-   void SetParent(IClickable* parent) { mParent = parent; }
+   IClickable* GetParent() const
+   {
+      const auto g = LockWithGuard();
+      return mParent;
+   }
+   void SetParent(IClickable* parent)
+   {
+      const auto g = LockWithGuard();
+      mParent = parent;
+   }
    bool NotifyMouseMoved(float x, float y);
    bool NotifyMouseScrolled(float x, float y, float scrollX, float scrollY, bool isSmoothScroll, bool isInvertedScroll);
    virtual void MouseReleased() {}
@@ -66,27 +77,50 @@ public:
    ofRectangle GetRect(bool local = false);
    void SetName(const char* name)
    {
+      const auto g = LockWithGuard();
       if (mName != name)
          StringCopy(mName, name, MAX_TEXTENTRY_LENGTH);
    }
-   const char* Name() const { return mName; }
-   char* NameMutable() { return mName; }
+   const char* Name() const
+   {
+      const auto g = LockWithGuard();
+      return mName;
+   }
+   char* NameMutable()
+   {
+      const auto g = LockWithGuard();
+      return mName;
+   }
    std::string Path(bool ignoreContext = false, bool useDisplayName = false);
    virtual bool CheckNeedsDraw();
-   virtual void SetShowing(bool showing) { mShowing = showing; }
-   bool IsShowing() const { return mShowing; }
-   virtual void StartBeacon() { mBeaconTime = gTime; }
+   virtual void SetShowing(bool showing)
+   {
+      const auto g = LockWithGuard();
+      mShowing = showing;
+   }
+   bool IsShowing() const
+   {
+      const auto g = LockWithGuard();
+      return mShowing;
+   }
+   virtual void StartBeacon()
+   {
+      const auto g = LockWithGuard();
+      mBeaconTime = gTime;
+   }
    float GetBeaconAmount() const;
    void DrawBeacon(int x, int y);
    IClickable* GetRootParent();
    IDrawableModule* GetModuleParent();
    void SetOverrideDisplayName(std::string name)
    {
+      const auto g = LockWithGuard();
       mHasOverrideDisplayName = true;
       mOverrideDisplayName = name;
    }
    std::string GetDisplayName()
    {
+      const auto g = LockWithGuard();
       return mHasOverrideDisplayName ? mOverrideDisplayName : mName;
    }
 

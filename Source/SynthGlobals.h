@@ -36,6 +36,7 @@
 #include <vector>
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <math.h>
 #include <cctype>
 #include <random>
@@ -94,7 +95,7 @@ extern double gInvSampleRateMs;
 extern double gBufferSizeMs;
 extern double gNyquistLimit;
 extern bool gPrintMidiInput;
-extern double gTime;
+extern std::atomic<double> gTime;
 extern IUIControl* gBindToUIControl;
 extern RetinaTrueTypeFont gFont;
 extern RetinaTrueTypeFont gFontBold;

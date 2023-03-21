@@ -1694,7 +1694,7 @@ noteflusher~send a note-off for all notes
 
 
 
-notefilter~only allow a certain pitches through
+notefilter~only allow certain pitches through. note-off events (velocity=0) are always allowed through.
 ~C-2 (0)~
 ~C#-2 (1)~
 ~D-2 (2)~

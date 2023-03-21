@@ -27,12 +27,13 @@
 
 void NamedMutex::Lock(std::string locker)
 {
+   mMutex.lock();
    if (mLocker == locker)
    {
       ++mExtraLockCount;
+      mMutex.unlock();
       return;
    }
-   mMutex.lock();
    mLocker = locker;
 }
 

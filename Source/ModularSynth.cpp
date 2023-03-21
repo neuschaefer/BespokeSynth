@@ -108,9 +108,25 @@ ModularSynth::~ModularSynth()
    ScriptModule::UninitializePython();
 }
 
-void ModularSynth::CrashHandler(void*)
+void ModularSynth::CrashHandler(void *p)
 {
+  // DumpStats implicitly uses new/delete, which are not signal-safe, according to POSIX.
+  // ThreadSanitizer takes this seriously and prints a lot of log spam when it
+  // sees that DumpStats has been called from a signal handler, so let's just avoid that.
+#if !BESPOKE_USE_TSAN
    DumpStats(true, nullptr);
+#endif
+
+#if BESPOKE_LINUX || BESPOKE_MAC
+   // Terminate with the signal that got us into trouble (e.g. SIGSEGV).
+   int signum = (int)(intptr_t)p;
+   signal(signum, SIG_DFL);
+   kill(getpid(), signum);
+
+   // Pause the current thread long enough to give the signal a chance to
+   // terminate the whole process.
+   sleep(1);
+#endif
 }
 
 #if BESPOKE_WINDOWS
@@ -2060,11 +2076,13 @@ void ModularSynth::AudioIn(const float** input, int bufferSize, int nChannels)
 
 float* ModularSynth::GetInputBuffer(int channel)
 {
+   assert(channel >= 0 && channel < mInputBuffers.size());
    return mInputBuffers[channel];
 }
 
 float* ModularSynth::GetOutputBuffer(int channel)
 {
+   assert(channel >= 0 && channel < mOutputBuffers.size());
    return mOutputBuffers[channel];
 }
 

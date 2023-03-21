@@ -968,9 +968,14 @@ void StepSequencer::DropdownUpdated(DropdownList* list, int oldVal, double time)
    }
    if (list == mStepIntervalDropdown)
    {
-      UIGrid* oldGrid = new UIGrid(*mGrid);
       int oldNumSteps = GetNumSteps((NoteInterval)oldVal, mNumMeasures);
       int newNumSteps = GetNumSteps(mStepInterval, mNumMeasures);
+
+      std::map<std::pair<int, int>, float> oldValues;
+      for (int i = 0; i < mGrid->GetRows(); ++i)
+         for (int j = 0; j < oldNumSteps; ++j)
+            oldValues[std::pair(i, j)] = mGrid->GetValRefactor(i, j);
+
       for (int i = 0; i < mGrid->GetRows(); ++i)
       {
          for (int j = 0; j < newNumSteps; ++j)
@@ -978,12 +983,11 @@ void StepSequencer::DropdownUpdated(DropdownList* list, int oldVal, double time)
             float div = j * ((float)oldNumSteps / newNumSteps);
             int col = (int)div;
             if (div == col)
-               mGrid->SetValRefactor(i, j, oldGrid->GetValRefactor(i, col));
+               mGrid->SetValRefactor(i, j, oldValues[std::pair(i, col)]);
             else
                mGrid->SetValRefactor(i, j, 0);
          }
       }
-      oldGrid->Delete();
       TransportListenerInfo* transportListenerInfo = TheTransport->GetListenerInfo(this);
       if (transportListenerInfo != nullptr)
          transportListenerInfo->mInterval = mStepInterval;
