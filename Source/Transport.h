@@ -33,6 +33,7 @@
 #include "DropdownList.h"
 #include "Checkbox.h"
 #include "IAudioPoller.h"
+#include "ILockable.h"
 
 class ITimeListener
 {
@@ -97,7 +98,7 @@ struct TransportListenerInfo
    int mCustomDivisor{ 8 };
 };
 
-class Transport : public IDrawableModule, public IButtonListener, public IFloatSliderListener, public IDropdownListener
+class Transport : public IDrawableModule, public IButtonListener, public IFloatSliderListener, public IDropdownListener, virtual public ILockable
 {
 public:
    Transport();
@@ -105,18 +106,47 @@ public:
    void CreateUIControls() override;
    void Poll() override;
 
-   float GetTempo() { return mTempo; }
-   void SetTempo(float tempo) { mTempo = tempo; }
+   float GetTempo()
+   {
+      auto g = LockWithGuard();
+      return mTempo;
+   }
+   void SetTempo(float tempo)
+   {
+      auto g = LockWithGuard();
+      mTempo = tempo;
+   }
    void SetTimeSignature(int top, int bottom)
    {
+      auto g = LockWithGuard();
       mTimeSigTop = top;
       mTimeSigBottom = bottom;
    }
-   int GetTimeSigTop() { return mTimeSigTop; }
-   int GetTimeSigBottom() { return mTimeSigBottom; }
-   void SetSwing(float swing) { mSwing = swing; }
-   float GetSwing() { return mSwing; }
-   double MsPerBar() const { return 60.0 / mTempo * 1000 * mTimeSigTop * 4.0 / mTimeSigBottom; }
+   int GetTimeSigTop()
+   {
+      auto g = LockWithGuard();
+      return mTimeSigTop;
+   }
+   int GetTimeSigBottom()
+   {
+      auto g = LockWithGuard();
+      return mTimeSigBottom;
+   }
+   void SetSwing(float swing)
+   {
+      auto g = LockWithGuard();
+      mSwing = swing;
+   }
+   float GetSwing()
+   {
+      auto g = LockWithGuard();
+      return mSwing;
+   }
+   double MsPerBar() const
+   {
+      auto g = LockWithGuard();
+      return 60.0 / mTempo * 1000 * mTimeSigTop * 4.0 / mTimeSigBottom;
+   }
    void Advance(double ms);
    TransportListenerInfo* AddListener(ITimeListener* listener, NoteInterval interval, OffsetInfo offsetInfo, bool useEventLookahead);
    void RemoveListener(ITimeListener* listener);
@@ -127,16 +157,29 @@ public:
    double GetDuration(NoteInterval interval);
    int GetQuantized(double time, const TransportListenerInfo* listenerInfo, double* remainderMs = nullptr);
    double GetMeasurePos(double time) const { return fmod(GetMeasureTime(time), 1); }
-   void SetMeasureTime(double measureTime) { mMeasureTime = measureTime; }
+   void SetMeasureTime(double measureTime)
+   {
+      auto g = LockWithGuard();
+      mMeasureTime = measureTime;
+   }
    int GetMeasure(double time) const { return (int)floor(GetMeasureTime(time)); }
    double GetMeasureTime(double time) const;
-   void SetMeasure(int count) { mMeasureTime = mMeasureTime - (int)mMeasureTime + count; }
-   void SetDownbeat() { mMeasureTime = mMeasureTime - (int)mMeasureTime - .001; }
+   void SetMeasure(int count)
+   {
+      auto g = LockWithGuard();
+      mMeasureTime = mMeasureTime - (int)mMeasureTime + count;
+   }
+   void SetDownbeat()
+   {
+      auto g = LockWithGuard();
+      mMeasureTime = mMeasureTime - (int)mMeasureTime - .001;
+   }
    static int CountInStandardMeasure(NoteInterval interval);
    void Reset();
    void OnDrumEvent(NoteInterval drumEvent);
    void SetLoop(int measureStart, int measureEnd)
    {
+      auto g = LockWithGuard();
       assert(measureStart < measureEnd);
       mLoopStartMeasure = measureStart;
       mLoopEndMeasure = measureEnd;
@@ -145,6 +188,7 @@ public:
    }
    void ClearLoop()
    {
+      auto g = LockWithGuard();
       mLoopStartMeasure = -1;
       mLoopEndMeasure = -1;
       mQueuedMeasure = -1;

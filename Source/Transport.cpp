@@ -121,6 +121,7 @@ void Transport::AdjustTempo(double amount)
 
 void Transport::Advance(double ms)
 {
+   auto g = LockWithGuard();
    double amount = ms / MsPerBar();
 
    assert(amount > 0);
