@@ -183,6 +183,7 @@ struct ofRectangle
 };
 
 using ofMutex = std::recursive_mutex;
+using ofMutexGuard = std::lock_guard<ofMutex>;
 
 #define CLAMP(v, a, b) (v < a ? a : (v > b ? b : v))
 
