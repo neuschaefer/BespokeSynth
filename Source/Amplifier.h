@@ -64,6 +64,7 @@ private:
    }
    bool Enabled() const override { return mEnabled; }
 
+   ofMutex mMutex;
    float mGain{ 1 };
    FloatSlider* mGainSlider{ nullptr };
 };

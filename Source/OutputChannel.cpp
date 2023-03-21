@@ -61,6 +61,9 @@ void OutputChannel::CreateUIControls()
 
 void OutputChannel::Process(double time)
 {
+   ofMutexGuard g1(mAudioSourceMutex);
+   ofMutexGuard g2(mAudioReceiverMutex);
+   ofMutexGuard g3(mMutex);
    int numChannels = GetNumChannels();
 
    SyncBuffers(numChannels);
@@ -127,8 +130,12 @@ void OutputChannel::DrawModule()
       {
          ofPushStyle();
          ofFill();
+
+         mMutex.lock();
          float level = mLevelMeters[i].mPeakTracker.GetPeak() / mLimit;
          float slowLevel = mLevelMeters[i].mPeakTrackerSlow.GetPeak() / mLimit;
+         mMutex.unlock();
+
          ofColor color(0, 255, 0);
          if (j > kNumSegments - 3)
             color.set(255, 0, 0);

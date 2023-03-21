@@ -49,15 +49,20 @@ void Amplifier::Process(double time)
    if (!mEnabled)
       return;
 
+   ofMutexGuard g(mAudioReceiverMutex);
+
    SyncBuffers();
    int bufferSize = GetBuffer()->BufferSize();
 
    IAudioReceiver* target = GetTarget();
    if (target)
    {
+      ofMutexGuard g(target->mAudioReceiverMutex);
+
       ChannelBuffer* out = target->GetBuffer();
       for (int ch = 0; ch < GetBuffer()->NumActiveChannels(); ++ch)
       {
+         ofMutexGuard g(mMutex);
          auto getBufferChannelCh = GetBuffer()->GetChannel(ch);
          for (int i = 0; i < bufferSize; ++i)
          {
@@ -77,6 +82,7 @@ void Amplifier::DrawModule()
    if (Minimized() || IsVisible() == false)
       return;
 
+   ofMutexGuard g(mMutex);
    mGainSlider->Draw();
 }
 

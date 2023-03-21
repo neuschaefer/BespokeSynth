@@ -63,9 +63,12 @@ void Splitter::Process(double time)
    if (!mEnabled)
       return;
 
+   ofMutexGuard g(mAudioReceiverMutex);
+
    IAudioReceiver* target0 = GetTarget(0);
    if (target0)
    {
+      ofMutexGuard g(target0->mAudioReceiverMutex);
       ChannelBuffer* out = target0->GetBuffer();
       Add(out->GetChannel(0), GetBuffer()->GetChannel(0), GetBuffer()->BufferSize());
       GetVizBuffer()->WriteChunk(GetBuffer()->GetChannel(0), GetBuffer()->BufferSize(), 0);
@@ -77,6 +80,7 @@ void Splitter::Process(double time)
    IAudioReceiver* target1 = GetTarget(1);
    if (target1)
    {
+      ofMutexGuard g(target1->mAudioReceiverMutex);
       ChannelBuffer* out2 = target1->GetBuffer();
       Add(out2->GetChannel(0), GetBuffer()->GetChannel(secondChannel), GetBuffer()->BufferSize());
       mVizBuffer2.WriteChunk(GetBuffer()->GetChannel(secondChannel), GetBuffer()->BufferSize(), 0);

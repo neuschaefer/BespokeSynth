@@ -60,13 +60,19 @@ private:
    void DrawModule() override;
    void GetModuleDimensions(float& width, float& height) override
    {
+      ofMutexGuard g(mMutex);
       width = mWidth;
       height = mHeight;
    }
    bool Enabled() const override { return true; }
 
-   int GetNumChannels() const { return mChannelSelectionIndex < mStereoSelectionOffset ? 1 : 2; }
+   int GetNumChannels() const
+   {
+      ofMutexGuard g(mMutex);
+      return mChannelSelectionIndex < mStereoSelectionOffset ? 1 : 2;
+   }
 
+   mutable ofMutex mMutex;
    float mWidth{ 64 };
    float mHeight{ 40 };
    DropdownList* mChannelSelector{ nullptr };

@@ -104,6 +104,8 @@ void PatchCable::Render()
          IAudioSource* audioSource = dynamic_cast<IAudioSource*>(GetOwningModule());
          if (audioSource)
          {
+            ofMutexGuard g(audioSource->mAudioSourceMutex);
+
             RollingBuffer* vizBuff = mOwner->GetOverrideVizBuffer();
             if (vizBuff == nullptr)
                vizBuff = audioSource->GetVizBuffer();
@@ -337,6 +339,7 @@ void PatchCable::Render()
       {
          ofSetLineWidth(lineWidth);
 
+         ofMutexGuard g(audioSource->mAudioSourceMutex);
          RollingBuffer* vizBuff = mOwner->GetOverrideVizBuffer();
          if (vizBuff == nullptr)
             vizBuff = audioSource->GetVizBuffer();
@@ -398,16 +401,18 @@ void PatchCable::Render()
 
          bool warn = false;
 
-         if (!TheSynth->IsAudioPaused())
+         if (!TheSynth->IsAudioPaused() && mAudioReceiverTarget)
          {
-            if (vizBuff->NumChannels() > 1 && mAudioReceiverTarget && mAudioReceiverTarget->GetInputMode() == IAudioReceiver::kInputMode_Mono)
+            ofMutexGuard g(mAudioReceiverTarget->mAudioReceiverMutex);
+
+            if (vizBuff->NumChannels() > 1 && mAudioReceiverTarget->GetInputMode() == IAudioReceiver::kInputMode_Mono)
             {
                warn = true; //warn that the multichannel audio is being crunched to mono
                if (mHovered)
                   TheSynth->SetNextDrawTooltip("warning: multichannel audio is being squashed to mono");
             }
 
-            if (vizBuff->NumChannels() == 1 && mAudioReceiverTarget && mAudioReceiverTarget->GetBuffer()->RecentNumActiveChannels() > 1)
+            if (vizBuff->NumChannels() == 1 && mAudioReceiverTarget->GetBuffer()->RecentNumActiveChannels() > 1)
             {
                warn = true; //warn that the target expects multichannel audio but we're not filling all of the channels
                if (mHovered)

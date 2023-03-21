@@ -191,6 +191,8 @@ void IDrawableModule::DrawFrame(float w, float h, bool drawModule, float& titleB
       IAudioSource* audioSource = dynamic_cast<IAudioSource*>(this);
       if (audioSource)
       {
+         ofMutexGuard g(audioSource->mAudioSourceMutex);
+
          RollingBuffer* vizBuff = audioSource->GetVizBuffer();
          int numSamples = std::min(500, vizBuff->Size());
          float sample;

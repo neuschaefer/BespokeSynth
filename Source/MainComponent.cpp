@@ -570,6 +570,8 @@ private:
 
    NVGcontext* mVG;
    NVGcontext* mFontBoundsVG;
+
+   ofMutex mInfoMutex;
    int64 mLastFpsUpdateTime;
    int mFrameCountAccum;
    std::list<int> mPressedKeys;

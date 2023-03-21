@@ -346,6 +346,7 @@ private:
    std::unique_ptr<Minimap> mMinimap{ nullptr };
    UserPrefsEditor* mUserPrefsEditor{ nullptr };
 
+   ofMutex mRecordMutex;
    RollingBuffer* mGlobalRecordBuffer{ nullptr };
    long long mRecordingLength{ 0 };
 

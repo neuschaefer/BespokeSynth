@@ -539,8 +539,10 @@ void ModularSynth::Draw(void* vg)
       ofPopStyle();
    }
 
-   if (UserPrefs.draw_background_lissajous.Get())
+   if (UserPrefs.draw_background_lissajous.Get()) {
+      ofMutexGuard g(mRecordMutex);
       DrawLissajous(mGlobalRecordBuffer, 0, 0, ofGetWidth(), ofGetHeight(), sBackgroundLissajousR, sBackgroundLissajousG, sBackgroundLissajousB);
+   }
 
    if (gTime == 1 && mFatalError == "")
    {
@@ -2054,12 +2056,15 @@ void ModularSynth::AudioOut(float** output, int bufferSize, int nChannels)
       }
    }
    /////////// AUDIO PROCESSING ENDS HERE /////////////
-   if (nChannels >= 1)
-      mGlobalRecordBuffer->WriteChunk(output[0], bufferSize, 0);
-   if (nChannels >= 2)
-      mGlobalRecordBuffer->WriteChunk(output[1], bufferSize, 1);
-   mRecordingLength += bufferSize;
-   mRecordingLength = MIN(mRecordingLength, mGlobalRecordBuffer->Size());
+   {
+      ofMutexGuard g(mRecordMutex);
+      if (nChannels >= 1)
+         mGlobalRecordBuffer->WriteChunk(output[0], bufferSize, 0);
+      if (nChannels >= 2)
+         mGlobalRecordBuffer->WriteChunk(output[1], bufferSize, 1);
+      mRecordingLength += bufferSize;
+      mRecordingLength = MIN(mRecordingLength, mGlobalRecordBuffer->Size());
+   }
 
    Profiler::PrintCounters();
 }
@@ -3260,6 +3265,7 @@ void ModularSynth::SaveOutput()
    std::string filename = ofGetTimestampString(UserPrefs.recordings_path.Get() + save_prefix + "%Y-%m-%d_%H-%M.wav");
    //string filenamePos = ofGetTimestampString("recordings/pos_%Y-%m-%d_%H-%M.wav");
 
+   ofMutexGuard g(mRecordMutex);
    assert(mRecordingLength <= mGlobalRecordBuffer->Size());
 
    for (int i = 0; i < mRecordingLength; ++i)
