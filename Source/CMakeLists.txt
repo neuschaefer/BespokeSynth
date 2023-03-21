@@ -208,6 +208,7 @@ target_sources(BespokeSynth PRIVATE
     IDrawableModule.cpp
     IDrawableModule.h
     IDrivableSequencer.h
+    ILockable.h
     IMidiVoice.h
     IModulator.cpp
     IModulator.h
