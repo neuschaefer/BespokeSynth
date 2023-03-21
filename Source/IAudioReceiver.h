@@ -44,6 +44,8 @@ public:
    virtual ChannelBuffer* GetBuffer() { return &mInputBuffer; }
    virtual InputMode GetInputMode() { return kInputMode_Multichannel; }
 
+   ofMutex mAudioReceiverMutex;
+
 protected:
    void SyncInputBuffer();
 

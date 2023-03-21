@@ -29,19 +29,23 @@
 
 IAudioReceiver* IAudioSource::GetTarget(int index)
 {
-   assert(index < GetNumTargets());
-   return GetPatchCableSource(index)->GetAudioReceiver();
+   if (index < GetNumTargets())
+      return GetPatchCableSource(index)->GetAudioReceiver();
+   else
+      return nullptr;
 }
 
 void IAudioSource::SyncOutputBuffer(int numChannels)
 {
    for (int i = 0; i < GetNumTargets(); ++i)
    {
-      if (GetTarget(i))
+      if (auto target = GetTarget(i))
       {
-         ChannelBuffer* out = GetTarget(i)->GetBuffer();
+         ofMutexGuard g(target->mAudioReceiverMutex);
+         ChannelBuffer* out = target->GetBuffer();
          out->SetNumActiveChannels(MAX(numChannels, out->NumActiveChannels()));
       }
    }
+   ofMutexGuard g(mAudioSourceMutex);
    GetVizBuffer()->SetNumChannels(numChannels);
 }

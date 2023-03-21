@@ -46,6 +46,8 @@ public:
    virtual int GetNumTargets() { return 1; }
    RollingBuffer* GetVizBuffer() { return &mVizBuffer; }
 
+   ofMutex mAudioSourceMutex;
+
 protected:
    void SyncOutputBuffer(int numChannels);
 

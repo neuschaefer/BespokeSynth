@@ -2002,8 +2002,10 @@ void ModularSynth::AudioOut(float** output, int bufferSize, int nChannels)
       TheTransport->Advance(elapsed);
 
       //process all audio
-      for (int i = 0; i < mSources.size(); ++i)
+      for (int i = 0; i < mSources.size(); ++i) {
+         ofMutexGuard g(mSources[i]->mAudioSourceMutex);
          mSources[i]->Process(gTime);
+      }
 
       //put it into speakers
       for (int i = 0; i < nChannels; ++i)
