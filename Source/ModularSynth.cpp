@@ -89,6 +89,20 @@ ModularSynth::ModularSynth()
    mKnownPluginList = std::make_unique<juce::KnownPluginList>();
 
    mAudioPluginFormatManager->addDefaultFormats();
+
+   if (BESPOKE_USE_TSAN)
+   {
+      // Graphical glitches hiccups are a little bit annoying, audio glitches
+      // can ruin a performance.
+      //
+      // Therefore we establish the following lock order between render lock
+      // and audio lock so that TSAN can report inversions:
+      //
+      // mRenderLock >= mAudioThreadMutex >= mAudioSourceMutex of various classes
+
+      ofMutexGuard g1(mRenderLock);
+      ScopedMutex g2(GetAudioMutex(), "TSAN lock order");
+   }
 }
 
 ModularSynth::~ModularSynth()
